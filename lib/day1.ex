@@ -15,6 +15,7 @@ defmodule Day1 do
   def count_increases(enum) do
     {inc, _acc} =
       Enum.reduce(enum, {0, nil}, fn
+        # case for first value
         current, {acc, nil} ->
           {acc, current}
 
@@ -31,17 +32,18 @@ defmodule Day1 do
   def window(enum, length \\ 3, reducer \\ &Kernel.+/2) do
     {output, _acc} =
       Enum.reduce(enum, {[], []}, fn value, {acc, windows} ->
-        windows =
-          [[] | windows]
-          |> Enum.map(&[value | &1])
+        # add value to each currently open window
+        windows = Enum.map([[] | windows], &[value | &1])
 
         filter = &(length(&1) >= length)
 
+        # reduce all windows that are full
         ready_windows =
           Enum.filter(windows, filter)
           |> Enum.map(&Enum.reduce(&1, reducer))
           |> Enum.reverse()
 
+        # remove full windows from open window list
         windows = Enum.reject(windows, filter)
 
         {acc ++ ready_windows, windows}
