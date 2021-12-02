@@ -32,7 +32,9 @@ defmodule Day1 do
   def window(enum, length \\ 3, reducer \\ &Kernel.+/2) do
     {output, _acc} =
       Enum.reduce(enum, {[], []}, fn value, {acc, windows} ->
-        # add value to each currently open window
+        # add a new, empty window
+        # and
+        # add the current value to each currently open window
         windows = Enum.map([[] | windows], &[value | &1])
 
         filter = &(length(&1) >= length)
