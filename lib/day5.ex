@@ -18,9 +18,11 @@ defmodule Day5 do
   def horizontal?({{_, y1}, {_, y2}}) do
     y1 == y2
   end
+
   def vertical?({{x1, _}, {x2, _}}) do
     x1 == x2
   end
+
   def axis_aligned?(line) do
     horizontal?(line) or vertical?(line)
   end
@@ -32,12 +34,17 @@ defmodule Day5 do
     IO.puts("points: #{length(dangerous_points)}")
   end
 
+  def part_2() do
+    plot = Enum.reduce(input(), %{}, &plot_line/2)
+    dangerous_points = Enum.filter(plot, &dangerous?/1)
+    IO.puts("points: #{length(dangerous_points)}")
+  end
+
   def dangerous?({_point, lines}) do
     lines >= 2
   end
 
   def plot_line(line, plot) do
-    IO.inspect(line, label: "plotting line")
     for point <- line_to_list(line), reduce: plot do
       plot -> record_point(point, plot)
     end
@@ -51,12 +58,16 @@ defmodule Day5 do
 
   @spec line_to_list(line) :: [point]
   def line_to_list({{x1, y1}, {x2, y2}}) do
-    for x <- x1..x2 do
-      for y <- y1..y2 do
-        {x, y}
-      end
+    dx = x2 - x1
+    dy = y2 - y1
+
+    steps = max(abs(dx), abs(dy))
+
+    step_x = dx / steps
+    step_y = dy / steps
+
+    for step <- 0..steps do
+      {trunc(x1 + step_x * step), trunc(y1 + step_y * step)}
     end
-    |> List.flatten()
-    |> Enum.uniq()
   end
 end
