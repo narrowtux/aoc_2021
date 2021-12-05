@@ -125,6 +125,7 @@ defmodule Day4 do
   def part_1 do
     {winning_board, number} = find_winning_board(@numbers, boards())
     score = board_score(winning_board)
+    print_board(winning_board)
     IO.puts("score: #{score}")
     IO.puts("number: #{number}")
     IO.puts("final score: #{score * number}")
@@ -134,6 +135,7 @@ defmodule Day4 do
     {losing_board, numbers} = find_losing_board(@numbers, boards())
     {losing_board, number} = find_winning_board(numbers, [losing_board])
     score = board_score(losing_board)
+    print_board(losing_board)
     IO.puts("score: #{score}")
     IO.puts("number: #{number}")
     IO.puts("final score: #{score * number}")
@@ -212,5 +214,17 @@ defmodule Day4 do
       {:marked, _} -> true
       _ -> false
     end
+  end
+
+  def print_board(board) do
+    Enum.map(board, fn row ->
+      Enum.map(row, fn cell ->
+        case cell do
+          {:marked, number} -> [IO.ANSI.red(), String.pad_leading(to_string(number), 3, " "), IO.ANSI.black()]
+          number -> String.pad_leading(to_string(number), 3, " ")
+        end
+      end) ++ ["\n"]
+    end)
+    |> IO.puts()
   end
 end
