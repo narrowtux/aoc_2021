@@ -1,4 +1,8 @@
 defmodule Day9 do
+  @type point :: {x :: integer(), y :: integer(), height :: integer()}
+  @type tensor :: [[integer()]]
+  @type basin :: [point()]
+
   def input do
     __DIR__
     |> Path.join("day9.txt")
@@ -18,6 +22,7 @@ defmodule Day9 do
     |> process_input()
   end
 
+  @spec process_input(Enum.t()) :: tensor()
   def process_input(input) do
     input
     |> Stream.map(&String.trim/1)
@@ -34,6 +39,7 @@ defmodule Day9 do
     Enum.reduce(low_points, 0, fn {_x, _y, height}, acc -> acc + height + 1 end)
   end
 
+  @spec get_low_points(tensor()) :: [point()]
   def get_low_points(tensor) do
     height = width = length(tensor) - 1
 
@@ -63,9 +69,11 @@ defmodule Day9 do
     |> Enum.reduce(1, fn basin, acc -> acc * length(basin) end)
   end
 
+  @spec get_neighbors(tensor(), point()) :: [point()]
   def get_neighbors(tensor, {x, y, _height}) do
     get_neighbors(tensor, x, y)
   end
+  @spec get_neighbors(tensor(), integer(), integer()) :: [point()]
   def get_neighbors(tensor, x, y) do
     [
       get_at(tensor, x, y-1),
@@ -76,6 +84,7 @@ defmodule Day9 do
     |> Enum.reject(&is_nil/1)
   end
 
+  @spec get_at(tensor(), integer(), integer()) :: point()
   def get_at(tensor, x, y) do
     length = length(tensor) - 1
     if x < 0 || x > length || y < 0 || y > length do
@@ -90,6 +99,7 @@ defmodule Day9 do
     end
   end
 
+  @spec expand_basin(point(), basin(), tensor()) :: basin()
   def expand_basin(point, basin, tensor) do
     neighbors = get_neighbors(tensor, point) -- basin
     neighbors = Enum.filter(neighbors, &(elem(&1, 2) != 9))
