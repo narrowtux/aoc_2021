@@ -29,6 +29,7 @@ defmodule Day12 do
     |> Enum.flat_map(fn [from, to] ->
       [[from, to], [to, from]]
     end)
+    |> Enum.filter(fn [_from, to] -> to != "start" end)
   end
 
   def start?(cave), do: cave == "start"
