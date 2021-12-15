@@ -22,7 +22,8 @@ defmodule Aoc2021.MixProject do
   defp deps do
     [
       {:flow, "~> 1.1"},
-      {:nx, "~> 0.1.0-dev", github: "elixir-nx/nx", branch: "main", sparse: "nx"}
+      {:nx, "~> 0.1.0-dev", github: "elixir-nx/nx", branch: "main", sparse: "nx"},
+      {:eastar, "~> 0.5.1"}
     ]
   end
 end
