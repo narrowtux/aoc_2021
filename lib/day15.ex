@@ -45,8 +45,8 @@ defmodule Day15 do
   def eastar_env(cave, expand \\ false) do
     {
       &neighbors(cave, &1, expand),
-      &heuristic(cave, &1, &2, expand),
-      fn _, _ -> 0 end
+      &distance(cave, &1, &2, expand),
+      &heuristic(cave, &1, &2, expand)
     }
   end
 
@@ -108,9 +108,14 @@ defmodule Day15 do
     end
   end
 
-  def heuristic(cave, _, {x, y}, expand) do
+  def distance(cave, _, {x, y}, expand) do
     # return the risk for point b
     get_risk(cave, x, y, expand)
+  end
+
+  def heuristic(_cave, {x1, y1}, {x2, y2}, _expand) do
+    # return the distance between point a and b
+    abs(x1 - x2) + abs(y1 - y2)
   end
 
   def get_risk(cave, x, y, expand \\ false) do
