@@ -19,7 +19,7 @@ defmodule Day17 do
     target_x = @target_x
     target_y = @target_y
 
-    for dx <- x_range, dy <- y_range, reduce: [] do
+    csv = for dx <- x_range, dy <- y_range, reduce: [] do
       acc ->
         # IO.write "Running simulation with velocity #{inspect {dx, dy}} ..."
         path = simulate({0,0}, {dx, dy}, target_x, target_y, [], 1500)
@@ -28,14 +28,15 @@ defmodule Day17 do
         end) do
           {_min_x, _max_x, _min_y, max_y} = get_bbox(path)
           # IO.puts " hit! y_max=#{max_y}"
-          [{dx, dy} | acc]
+          [{dx, dy, max_y} | acc]
         else
           # IO.puts " no hit."
           acc
         end
     end
-    |> Enum.uniq()
-    |> Enum.count()
+    |> Enum.map(fn tup -> tup |> Tuple.to_list() |> Enum.map(&to_string/1) |> Enum.intersperse(",") end)
+    |> Enum.intersperse("\n")
+    File.write!("day17.csv", csv)
   end
 
   def get_bbox(path) do
