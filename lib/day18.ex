@@ -3,7 +3,7 @@ defmodule Day18 do
   @spec reduce(snailfish_number()) :: snailfish_number()
   def reduce([a, b] = number) do
     result = cond do
-      depth(number) == 5 -> explode(number)
+      depth(number) == 5 -> explode(number) |> elem(0)
       largest_regular(number) >= 10 -> split(number)
       depth(number) > 5 -> [reduce(a), reduce(b)]
       true -> number
@@ -15,28 +15,58 @@ defmodule Day18 do
     end
   end
 
-  @type debris :: {:updated, snailfish_number()} | {:left | :right, integer()}
+  defguard is_regular_pair(pair) when is_list(pair) and length(pair) == 2 and is_integer(hd(pair)) and is_integer(hd(tl(pair)))
 
-  @spec explode(snailfish_number(), integer()) :: {:debris, [debris()]}
+  @spec explode(snailfish_number())  :: {snailfish_number(), integer(), integer()}
   def explode(number, depth \\ 0)
-  def explode([a, b], 5) when is_integer(a) and is_integer(b) do
-    {:debris, left: a, right: b}
+  def explode([pair, rest], 3) when is_regular_pair(pair) and is_integer(rest) do
+    [a, b] = pair
+    {rest + b, a, 0}
   end
-  def explode([a, b], depth) do
-    case {explode(a, depth + 1), explode(b, depth + 1)} do
-      {{:debris, rest}, _} -> push_debris(a, b, rest, :right)
-      {_, {:debris, rest}} -> push_debris(a, b, rest, :left)
-      _ -> [a, b]
+  def explode([rest, pair], 3) when is_regular_pair(pair) and is_integer(rest) do
+    [a, b] = pair
+    {rest + a, 0, b}
+  end
+  def explode(int, _depth) when is_integer(int) do
+    {int, 0, 0}
+  end
+  def explode([lhs, rhs], depth) do
+    case {explode(lhs, depth + 1), explode(rhs, depth + 1)} do
+      {{lhs, 0, 0}, {rhs, 0, 0}} ->
+        {[lhs, rhs], 0, 0}
+
+      {{lhs, left, right}, _} when left > 0 or right > 0 ->
+        {rhs, right} = push_right(rhs, right)
+        {[lhs, rhs], left, right}
+
+      {_, {rhs, left, right}} when left > 0 or right > 0 ->
+        {lhs, left} = push_left(lhs, left)
+        {[lhs, rhs], left, right}
     end
   end
 
-  @spec push_debris(snailfish_number(), snailfish_number(), debris(), :left | :right) :: {:debris, [debris()]}
-  def push_debris(left, right, debris, direction) do
-    {left, right} = case Keyword.get(debris, :updated) do
-      nil -> {left, right}
-      updated -> updated
-    end
+  def push_left(number, value)
+  def push_left([lhs, rhs], value) when is_integer(rhs) do
+    {[lhs, rhs + value], 0}
+  end
+  def push_left([lhs, rhs], value) do
+    {rhs, rest} = push_left(rhs, value)
+    {[lhs, rhs], rest}
+  end
+  def push_left(int, value) when is_integer(int) do
+    {int + value, 0}
+  end
 
+  def push_right(number, value)
+  def push_right([lhs, rhs], value) when is_integer(lhs) do
+    {[lhs + value, rhs], 0}
+  end
+  def push_right([lhs, rhs], value) do
+    {lhs, rest} = push_right(lhs, value)
+    {[lhs, rhs], rest}
+  end
+  def push_right(int, value) when is_integer(int) do
+    {int + value, 0}
   end
 
   @spec split(snailfish_number()) :: snailfish_number()
